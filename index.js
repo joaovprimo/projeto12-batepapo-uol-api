@@ -76,13 +76,21 @@ app.post('/messages', async(req,res)=>{
     const {to,text,type} = req.body;
     const {user} = req.headers;
     let objMes = {};
+    let personTo;
     const person = participants.find(usr=> usr.name===user);
-    const personTo = participants.find(usrto=>usrto.name === to);
-    console.log(personTo);
+    if(to !== "Todos"){
+        const person1 = participants.find(usrto=>usrto.name === to);
+        if(person1){
+        personTo = person1.name;}
+    else{res.sendStatus(400)}
+    }else{
+        personTo = "Todos";
+    }
+    
     const day = dayjs().format('HH:mm:ss');
     if(person && personTo){  
         objMes = {
-        to: personTo.name,
+        to: personTo,
         text,
         type,
         from:person.name,
