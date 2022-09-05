@@ -37,12 +37,12 @@ const objUser={
     lastStatus: Date.now()
 }
 
-const day = dayjs().format('HH:MM:SS');
+const day = dayjs().format('HH:mm:ss');
 
 const objLogin={
     from: name,
     to:'Todos',
-    text: 'entra na sala...', 
+    text: 'entrou na sala...', 
     type: 'status',
     time: day
 }
@@ -54,6 +54,7 @@ const check = collectNames.find(nome=> nome.name === name);
 if(!check){
     const resp = await db.collection('participants').insertOne(objUser);
     const resp2 = await db.collection('messages').insertOne(objLogin);
+    
     return res.sendStatus(201); 
 }
 return res.status(409).send("cadastro já existe");
@@ -78,7 +79,7 @@ app.post('/messages', async(req,res)=>{
     let objMes = {};
     const person = participants.find(usr=> usr.name===user);
     console.log(person);
-    const day = dayjs().format('HH:MM:SS');
+    const day = dayjs().format('HH:mm:ss');
     if(person){  
         objMes = {
         to,
@@ -128,8 +129,42 @@ app.get('/messages', async(req, res)=>{
     }
 })
 
+app.post('/status', async(req, res)=> {
+    const {user} = req.headers;
+const us = participants.find(part=> part.name === user);
+const ID = us._id;
+
+   if(us){
+      const newTi = await db.collection('participants').updateOne({_id: ID}, {$set: {"lastStatus":Date.now()}})
+        return res.send(200);
+    }else{
+        return res.send(404);
+    }
+})
 
 
+async function unaccessUser(){
+    const day = dayjs().format('HH:mm:ss');
+    const dateNow = Date.now();
+    const user = await db.collection('participants').find().toArray();
+    const UnLog = user.filter((time)=> ((dateNow - time.lastStatus)/1000) > 10 );
+
+    UnLog.map((usr)=>{
+        db.collection('messages').insertOne({
+            from: usr.name,
+            to:'Todos',
+            text: 'saiu da sala...', 
+            type: 'status',
+            time: day
+        });
+        db.collection('participants').deleteOne({
+            name: usr.name
+        });
+    });
+    
+}
+
+//setInterval(unaccessUser, 15000);
 
 app.listen(5000, ()=>{
     console.log("listening port 5000");
