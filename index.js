@@ -114,21 +114,18 @@ app.get('/messages', async(req, res)=>{
     const messages = await db.collection('messages').find().toArray();
     mesUser = messages.filter((mens)=> mens.to === "Todos" || mens.to === user || mens.from === user)
     if(mesUser){
-        res.send(mesUser);
-    }else{
-        res.sendStatus(500);
+        try{
+            if(limit){
+            const mes = mesUser.slice(-limit);
+             res.send(mes);
+            }
+             const mes2 = mesUser.slice(-100);
+             console.log(mes2)
+            res.send(mes2);
+            }catch{
+            return res.send("deu reuim");
+            }
     }
-    /*try{
-    if(limit){
-    const mes = messages.slice(-limit);
-     res.send(mes);
-    }
-     const mes2 = messages.slice(-100);
-     console.log(mes2)
-    res.send(mes2);
-    }catch{
-    return res.send("deu reuim");
-    }*/
 })
 
 
