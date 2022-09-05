@@ -108,12 +108,27 @@ if(validation.error){
 })
 
 app.get('/messages', async(req, res)=>{
-    try{
-const messages = await db.collection('messages').find().toArray();
-res.send(messages)
-    }catch{
-res.send("deu reuim");
+    const {limit} = req.query;
+    const {user} = req.headers;
+    let mesUser = [];
+    const messages = await db.collection('messages').find().toArray();
+    mesUser = messages.filter((mens)=> mens.to === "Todos" || mens.to === user || mens.from === user)
+    if(mesUser){
+        res.send(mesUser);
+    }else{
+        res.sendStatus(500);
     }
+    /*try{
+    if(limit){
+    const mes = messages.slice(-limit);
+     res.send(mes);
+    }
+     const mes2 = messages.slice(-100);
+     console.log(mes2)
+    res.send(mes2);
+    }catch{
+    return res.send("deu reuim");
+    }*/
 })
 
 
