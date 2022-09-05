@@ -46,7 +46,6 @@ const objLogin={
     type: 'status',
     time: day
 }
-console.log(objLogin);
 
 try{
 const collectNames = await db.collection('participants').find().toArray();
@@ -78,17 +77,18 @@ app.post('/messages', async(req,res)=>{
     const {user} = req.headers;
     let objMes = {};
     const person = participants.find(usr=> usr.name===user);
-    console.log(person);
+    const personTo = participants.find(usrto=>usrto.name === to);
+    console.log(personTo);
     const day = dayjs().format('HH:mm:ss');
-    if(person){  
+    if(person && personTo){  
         objMes = {
-        to,
+        to: personTo.name,
         text,
         type,
         from:person.name,
         time: day
     }}else{
-       return res.sendStatus(422);
+       return res.sendStatus(400);
     }
   
 const userSchema = joi.object({
@@ -121,7 +121,6 @@ app.get('/messages', async(req, res)=>{
              res.send(mes);
             }
              const mes2 = mesUser.slice(-100);
-             console.log(mes2)
             res.send(mes2);
             }catch{
             return res.send("deu reuim");
