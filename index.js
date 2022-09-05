@@ -143,6 +143,7 @@ const ID = us._id;
 
 
 async function unaccessUser(){
+    console.log("atualizando");
     const day = dayjs().format('HH:mm:ss');
     const dateNow = Date.now();
     const user = await db.collection('participants').find().toArray();
